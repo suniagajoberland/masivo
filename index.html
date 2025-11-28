@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generador de Enlaces de WhatsApp (con Color de Estado)</title>
+    <style>
+      /* Estilos CSS */
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        color: #1c1e21;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 600px;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #128c7e;
+        text-align: center;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #25d366;
+        padding-bottom: 10px;
+      }
+
+      .phone-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .phone-list li {
+        background-color: #e8f5e9;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s;
+      }
+
+      .phone-list li:hover {
+        background-color: #d1e7d8;
+      }
+
+      .phone-link {
+        text-decoration: none;
+        color: #075e54; /* Color original del enlace */
+        font-weight: bold;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        position: relative;
+        padding-left: 5px;
+        margin-right: 15px;
+        transition: color 0.3s;
+      }
+
+      .phone-link:before {
+        content: "📞";
+        margin-right: 10px;
+        font-size: 1.2em;
+      }
+
+      /* CLASE PARA COLOR PERMANENTE DESPUÉS DE HACER CLIC */
+      .link-permanently-sent {
+        color: #a0a0a0 !important; /* Color gris para indicar que ya fue procesado */
+        text-decoration: line-through;
+      }
+
+      /* CLASE TEMPORAL DE FEEDBACK */
+      .link-sent-feedback {
+        color: #ff9800;
+      }
+
+      .copy-btn {
+        background-color: #25d366;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 0.9em;
+        margin-left: 10px;
+        min-width: 100px;
+      }
+
+      .copy-btn:hover {
+        background-color: #128c7e;
+      }
+
+      .sent-feedback {
+        background-color: #ff9800;
+      }
+
+      .note {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #fff3cd;
+        border: 1px solid #ffe0a3;
+        border-left: 5px solid #ff9800;
+        border-radius: 4px;
+        font-size: 0.9em;
+        color: #856404;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📱 Lista de Contactos de WhatsApp (203 Números Únicos)</h1>
+      <p class="note">
+        ⚠️ **Instrucción:** Al hacer clic en el número, este se abrirá en
+        WhatsApp y su color **cambiará permanentemente a gris** para indicar que
+        ya ha sido seleccionado.
+      </p>
+      <ul id="phoneList" class="phone-list"></ul>
+    </div>
+
+    <script>
+      // JavaScript
+      // (Contiene los 203 números únicos de tu primer código)
+      const numbersData = [
+        "4148788095",
+        "4241342850",
+        "4126859124",
+        "4241470946",
+        "4126038684",
+        "4126937112",
+        "4123032528",
+        "4265197714",
+        "4121903005",
+        "4244270216",
+        "4146328322",
+        "4141115153",
+        "4140920002",
+        "4242836584",
+        "4241738157",
+        "4242536267",
+        "4125975458",
+        "4129299533",
+        "4242759910",
+        "4265201061",
+        "4142840027",
+        "4142840027",
+        "4241222602",
+        "4125608998",
+        "4244959626",
+        "4145518669",
+        "4120236062",
+        "4124553660",
+        "4129330168",
+        "4126105257",
+        "4166290975",
+        "4246019440",
+        "4241764076",
+        "4168336838",
+        "4123640049",
+        "4123847127",
+        "4144987921",
+        "4241889488",
+        "4140161413",
+        "4248574591",
+        "4242502932",
+        "4128039373",
+        "4127339216",
+        "4241623451",
+        "4124025130",
+        "4125820609",
+        "4126057633",
+        "4122392711",
+        "4242827881",
+        "4120520280",
+        "4164044013",
+        "4242508444",
+        "4143990892",
+        "4142833616",
+        "4141293847",
+        "4143269540",
+        "4245713697",
+        "4129414645",
+        "4126098716",
+        "4242349551",
+        "4122530041",
+        "4241784729",
+        "4142758800",
+        "4242175024",
+        "4143299635",
+        "4126112910",
+        "4126631084",
+        "4241549332",
+        "4123663238",
+        "4126792711",
+        "4129763436",
+        "4122130569",
+        "4129225553",
+        "4142817318",
+        "4161262089",
+        "4127272347",
+        "4241621466",
+        "4129557514",
+        "4243019830",
+        "4245423873",
+        "4241653585",
+        "4242949155",
+        "4149374313",
+        "4246068873",
+        "4126269711",
+        "4242168757",
+        "4147283477",
+        "4241263799",
+        "4125548360",
+        "4143177246",
+        "4123604420",
+        "4140157104",
+        "4142554896",
+        "4241501763",
+        "4143864813",
+        "4141569967",
+        "4143407875",
+        "4241851910",
+        "4129994187",
+        "4242344172",
+        "4127074247",
+        "4123193582",
+        "4129623877",
+        "4143034351",
+        "4265178213",
+        "4243641003",
+        "4241978236",
+        "4128983614",
+        "4241893585",
+        "4122605593",
+        "4143080724",
+        "4160877160",
+        "4141049735",
+        "4242157017",
+        "4123111675",
+        "4242316226",
+        "4122758713",
+        "4242603569",
+        "4140889896",
+        "4242819814",
+        "4242180686",
+        "4127186361",
+        "4265709894",
+        "4122249889",
+        "4226241138",
+        "4242748714",
+        "4143376419",
+        "4125894873",
+        "4241958458",
+        "4120358883",
+        "4124631774",
+        "4142532230",
+        "4141061068",
+        "4120334001",
+        "4149166179",
+        "4242156411",
+        "4223220313",
+        "4241958295",
+        "4141546445",
+        "4248750932",
+        "4141111985",
+        "4141614536",
+        "4127988043",
+        "4121275263",
+        "4122092504",
+        "4122081863",
+        "4122716715",
+        "4269117234",
+        "4125425301",
+        "4264194972",
+        "4122268225",
+        "4145108111",
+        "4264560160",
+        "4121944352",
+        "4128024355",
+        "4241589566",
+        "4141399996",
+        "4120211342",
+        "4243016584",
+        "4129890168",
+        "4140166877",
+        "4245910056",
+        "4244354516",
+        "4247825223",
+        "4145207430",
+        "4143247353",
+        "4160782592",
+        "4246854361",
+        "4144076633",
+        "4242326319",
+        "4123261074",
+        "4127126218",
+        "4126752509",
+        "4245046616",
+        "4242591308",
+        "4142340237",
+        "4148769754",
+        "4129790850",
+        "4166075093",
+        "4145138700",
+        "4265516839",
+        "4125476636",
+        "4241664756",
+        "4241664256",
+        "4241048998",
+        "4129315743",
+        "4125415523",
+        "4242576147",
+        "4129801454",
+        "4164438070",
+        "4126208162",
+        "4242605213",
+        "4122395282",
+        "4265200888",
+        "4146241982",
+        "4242424290",
+        "4242086882",
+        "4241951431",
+        "4129894480",
+        "4122229483",
+        "4125933379",
+        "4149342788",
+        "4241739106",
+        "4264519474",
+        "4144273806",
+        "4120994050",
+        "4129197524",
+        "4120992857",
+        "4121200151",
+        "4140144929",
+        "4241161835",
+        "4242546953",
+        "4241311080",
+        "4142596059",
+        "4121272785",
+        "4125516329",
+        "4129519954",
+        "4125698403",
+        "4128065805",
+        "4127701744",
+        "4242575545",
+        "4142307138",
+        "4129974248",
+        "4241214680",
+        "4143698058",
+        "4243007032",
+        "4144007061",
+        "4242803168",
+        "4124233849",
+        "4141173706",
+        "4241587146",
+        "4242643328",
+        "4120507164",
+        "4124024527",
+        "4127301834",
+        "4242033209",
+        "4264326976",
+        "4141557986",
+        "4265201620",
+        "4125735800",
+        "4127202311",
+        "4123118418",
+        "4241744025",
+        "4149016602",
+        "4122002054",
+        "4127204894",
+        "4143985985",
+        "4247027610",
+        "4147709448",
+        "4122176160",
+        "4241200377",
+        "4126769149",
+        "4242787636",
+        "4246134227",
+        "4142204003",
+        "4248670974",
+        "4242044922",
+        "4124808088",
+        "4120284793",
+        "4242248070",
+        "4242477150",
+        "4166234923",
+        "4248632359",
+        "4149728816",
+        "4141209428",
+        "4123909652",
+        "4242296062",
+        "4142145066",
+        "4143373723",
+        "4143043352",
+        "4242186266",
+        "4143327180",
+        "4129336309",
+        "4149013790",
+        "4126355275",
+        "4243377393",
+        "4241550782",
+        "4120766745",
+        "4121261287",
+        "4144212554",
+        "4126089076",
+        "4242033606",
+        "4147711008",
+        "4121575256",
+        "4241532569",
+        "4242615372",
+        "4141542587",
+        "4141831263",
+        "4242789977",
+        "4123815923",
+        "4166103370",
+        "4241505498",
+        "4143917093",
+        "4123025865",
+        "4122136726",
+        "4125853672",
+        "4247599357",
+        "4129848528",
+        "4242878782",
+        "4241685486",
+        "4162987253",
+        "4242050863",
+        "4124435520",
+        "4243615048",
+        "4142781956",
+        "4165371741",
+        "4241703892",
+        "4241792987",
+        "4241005828",
+        "4223400011",
+        "4127078446",
+        "4143459393",
+        "4129745271",
+        "4241150627",
+        "4129137745",
+        "4147164629",
+        "4124808088",
+        "4241271573",
+        "4242187873",
+        "4167047825",
+        "4125616033",
+        "4241794069",
+        "4243445166",
+        "4122121805",
+        "4144960838",
+        "4245993395",
+        "4128291676",
+        "4241546874",
+        "4120236634",
+        "4149705245",
+        "4140203600",
+        "4247464988",
+        "4242946636",
+        "4241044620",
+        "4242921998",
+        "4242647904",
+        "4122249340",
+        "4120609874",
+        "4141868135",
+        "4128865684",
+        "4142206840",
+        "4148750810",
+        "4144213158",
+        "4242585332",
+        "4142605257",
+        "4241642564",
+        "4141102415",
+        "4243191770",
+        "4129601864",
+        "4143202901",
+        "4122937073",
+        "4128232691",
+        "4125440797",
+        "4140133649",
+        "4123202076",
+        "4125432234",
+        "4127099339",
+        "4126058101",
+        "4142832030",
+        "4241283178",
+        "4141951342",
+        "4241990677",
+        "4123174240",
+        "4123610756",
+        "4143145592",
+        "4247318803",
+        "4142232168",
+        "4123612090",
+        "4127855859",
+        "4166141935",
+        "4245367947",
+        "4242335296",
+        "4127524060",
+        "4123152829",
+        "4129835844",
+        "4245352950",
+        "4241245243",
+        "4247474700",
+        "4241168217",
+        "4127289029",
+        "4129755432",
+        "4124889298",
+        "4242889293",
+        "4242349348",
+        "4127732705",
+        "4143669843",
+        "4241790925",
+        "4241618887",
+        "4122185763",
+        "4242021305",
+        "4242003633",
+        "4241902676",
+        "4123608439",
+        "4242319913",
+        "4141926694",
+        "4120901316",
+        "4123792527",
+        "4240127330",
+        "4149136754",
+        "4242022559",
+        "4144865120",
+        "4245044759",
+        "4242703463",
+        "4145881909",
+        "4241912300",
+        "4147752451",
+        "4122152898",
+        "4146554039",
+        "4241300661",
+        "4120455910",
+        "4123037599",
+        "4245273799",
+        "4145706243",
+        "4140144776",
+        "4244042700",
+        "4129801501",
+        "4144130009",
+        "4129700721",
+        "4241259283",
+        "4245688305",
+        "4126638880",
+        "4143390405",
+        "4242199835",
+        "4127142596",
+        "4149184872",
+        "4242215105",
+        "4241321926",
+        "4142765020",
+        "4129896657",
+        "4143396074",
+        "4127319810",
+        "4140324295",
+        "424240867",
+        "4129634905",
+        "4120139782",
+        "4123090538",
+        "4129399320",
+        "4241326683",
+        "4248790289",
+        "4144199370",
+        "4129620388",
+        "4241282941",
+        "4142372656",
+        "4242368334",
+        "4126915289",
+        "4241606494",
+        "4242952259",
+        "4241457515",
+        "4120416409",
+        "4166229312",
+        "4160410652",
+        "4120989908",
+        "4248803917",
+        "4241562491",
+        "4123420756",
+        "4141266489",
+        "4242621705",
+        "4242571129",
+        "4242164385",
+        "4123950804",
+        "4164046122",
+        "4164199422",
+        "4160410652",
+        "4126120758",
+        "4241725027",
+        "4249309009",
+        "4121528274",
+        "4129997839",
+        "4120620999",
+        "4242540031",
+        "4122309896",
+        "4142116230",
+        "4127319810",
+        "4140324295",
+        "4244240867",
+        "4129634905",
+        "4120139782",
+        "4123090538",
+        "4129399320",
+        "4241326683",
+        "4248790289",
+      ];
+
+      // Función central para generar el feedback visual
+      function giveSentFeedback(element) {
+        const originalText = element.textContent;
+        const isLink = element.classList.contains("phone-link");
+
+        if (isLink) {
+          // 1. Feedback temporal (el enlace se pone naranja)
+          element.textContent = "✅ ¡Ya Enviado!";
+          element.classList.add("link-sent-feedback");
+
+          setTimeout(() => {
+            // 2. Feedback permanente (el enlace se pone gris y vuelve al número original)
+            element.textContent = originalText;
+            element.classList.remove("link-sent-feedback");
+            element.classList.add("link-permanently-sent"); // CLASE PERMANENTE
+          }, 1000); // Muestra el mensaje por 1 segundo
+        } else {
+          // Feedback para el botón de copiar
+          element.textContent = "¡Copiado!";
+          element.classList.add("sent-feedback");
+          setTimeout(() => {
+            element.textContent = "Copiar Enlace";
+            element.classList.remove("sent-feedback");
+          }, 2000);
+        }
+      }
+
+      // Función para limpiar, formatear y generar el enlace de WhatsApp
+      function formatNumberAndGetLink(number) {
+        const cleanNumber = number.replace(/\D/g, "");
+        let whatsAppNumber = cleanNumber;
+        let displayPrefix = "";
+
+        // Lógica de prefijos para visualización
+        if (whatsAppNumber.startsWith("1")) {
+          displayPrefix = "+1 ";
+        } else if (whatsAppNumber.startsWith("57")) {
+          displayPrefix = "+57 ";
+        } else if (whatsAppNumber.startsWith("54")) {
+          displayPrefix = "+54 ";
+        } else if (whatsAppNumber.length >= 10) {
+          displayPrefix = "+58 ";
+          if (whatsAppNumber.length === 10) {
+            whatsAppNumber = "58" + whatsAppNumber;
+          }
+        }
+
+        const formattedNumber =
+          displayPrefix +
+          whatsAppNumber
+            .substring(displayPrefix.length)
+            .replace(/(\d{4})(?=\d)/g, "$1 ")
+            .trim();
+        const whatsAppLink = `https://api.whatsapp.com/send/?phone=${whatsAppNumber}`;
+
+        return { formattedNumber, whatsAppLink };
+      }
+
+      // Función para generar la lista en el HTML
+      function generateList() {
+        const listElement = document.getElementById("phoneList");
+        const uniqueNumbers = [...new Set(numbersData)];
+
+        uniqueNumbers.forEach((number) => {
+          const { formattedNumber, whatsAppLink } =
+            formatNumberAndGetLink(number);
+
+          const listItem = document.createElement("li");
+
+          // Enlace de WhatsApp
+          const link = document.createElement("a");
+          link.href = whatsAppLink;
+          link.target = "_blank";
+          link.className = "phone-link";
+          link.textContent = formattedNumber;
+
+          // EVENTO ADICIONADO: Maneja el feedback y el color permanente
+          link.onclick = () => {
+            giveSentFeedback(link);
+          };
+
+          // Botón para copiar el enlace
+          const copyButton = document.createElement("button");
+          copyButton.className = "copy-btn";
+          copyButton.textContent = "Copiar Enlace";
+          copyButton.onclick = (e) => {
+            e.preventDefault();
+            navigator.clipboard
+              .writeText(whatsAppLink)
+              .then(() => {
+                giveSentFeedback(copyButton);
+              })
+              .catch((err) => {
+                console.error("Error al copiar:", err);
+                alert(
+                  "Error al copiar el enlace. Inténtalo manualmente: " +
+                    whatsAppLink
+                );
+              });
+          };
+
+          listItem.appendChild(link);
+          listItem.appendChild(copyButton);
+          listElement.appendChild(listItem);
+        });
+      }
+
+      // Ejecutar la función para generar la lista al cargar la página
+      document.addEventListener("DOMContentLoaded", generateList);
+    </script>
+  </body>
+</html>

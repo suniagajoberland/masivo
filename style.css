@@ -1,0 +1,17 @@
+header img {
+  height: 50px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: space-around;
+}
+
+nav a {
+  text-decoration: none;
+  padding: 10px 15px;
+}
+nav a:hover {
+  background-color: #f0f0f0;
+}
