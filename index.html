@@ -3,9 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Generador de Enlaces de WhatsApp (con Color de Estado)</title>
+    <title>Generador de Enlaces de WhatsApp (con LocalStorage)</title>
     <style>
-      /* Estilos CSS */
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f0f2f5;
@@ -16,7 +15,6 @@
         flex-direction: column;
         align-items: center;
       }
-
       .container {
         width: 100%;
         max-width: 600px;
@@ -25,7 +23,6 @@
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
-
       h1 {
         color: #128c7e;
         text-align: center;
@@ -33,12 +30,10 @@
         border-bottom: 2px solid #25d366;
         padding-bottom: 10px;
       }
-
       .phone-list {
         list-style: none;
         padding: 0;
       }
-
       .phone-list li {
         background-color: #e8f5e9;
         margin-bottom: 10px;
@@ -49,14 +44,12 @@
         align-items: center;
         transition: background-color 0.3s;
       }
-
       .phone-list li:hover {
         background-color: #d1e7d8;
       }
-
       .phone-link {
         text-decoration: none;
-        color: #075e54; /* Color original del enlace */
+        color: #075e54;
         font-weight: bold;
         font-size: 1.1em;
         display: flex;
@@ -67,24 +60,18 @@
         margin-right: 15px;
         transition: color 0.3s;
       }
-
       .phone-link:before {
         content: "📞";
         margin-right: 10px;
         font-size: 1.2em;
       }
-
-      /* CLASE PARA COLOR PERMANENTE DESPUÉS DE HACER CLIC */
       .link-permanently-sent {
-        color: #a0a0a0 !important; /* Color gris para indicar que ya fue procesado */
+        color: #a0a0a0 !important;
         text-decoration: line-through;
       }
-
-      /* CLASE TEMPORAL DE FEEDBACK */
       .link-sent-feedback {
         color: #ff9800;
       }
-
       .copy-btn {
         background-color: #25d366;
         color: white;
@@ -97,15 +84,12 @@
         margin-left: 10px;
         min-width: 100px;
       }
-
       .copy-btn:hover {
         background-color: #128c7e;
       }
-
       .sent-feedback {
         background-color: #ff9800;
       }
-
       .note {
         margin-top: 20px;
         padding: 15px;
@@ -120,20 +104,18 @@
   </head>
   <body>
     <div class="container">
-      <h1>📱 Lista de Contactos de WhatsApp (203 Números Únicos)</h1>
+      <h1>📱 Lista de Contactos de WhatsApp (con LocalStorage)</h1>
       <p class="note">
-        ⚠️ **Instrucción:** Al hacer clic en el número, este se abrirá en
-        WhatsApp y su color **cambiará permanentemente a gris** para indicar que
-        ya ha sido seleccionado.
+        ⚠️ Al hacer clic en el número, este se abrirá en WhatsApp y su color
+        cambiará permanentemente a gris. Esa información se guardará en tu
+        navegador.
       </p>
       <ul id="phoneList" class="phone-list"></ul>
     </div>
 
     <script>
-      // JavaScript
-      // (Contiene los 203 números únicos de tu primer código)
-      const numbersData = [
-        "4148788095",
+      // Lista de números
+      const numbersData = ["4148788095",
         "4241342850",
         "4126859124",
         "4241470946",
@@ -613,27 +595,32 @@
         "4123090538",
         "4129399320",
         "4241326683",
-        "4248790289",
-      ];
+        "4248790289",];
 
-      // Función central para generar el feedback visual
-      function giveSentFeedback(element) {
+      // Recuperar del localStorage los números ya enviados
+      let sentNumbers = JSON.parse(localStorage.getItem("sentNumbers")) || [];
+
+      // Función central para feedback visual y guardar en localStorage
+      function giveSentFeedback(element, number) {
         const originalText = element.textContent;
         const isLink = element.classList.contains("phone-link");
 
         if (isLink) {
-          // 1. Feedback temporal (el enlace se pone naranja)
           element.textContent = "✅ ¡Ya Enviado!";
           element.classList.add("link-sent-feedback");
 
           setTimeout(() => {
-            // 2. Feedback permanente (el enlace se pone gris y vuelve al número original)
             element.textContent = originalText;
             element.classList.remove("link-sent-feedback");
-            element.classList.add("link-permanently-sent"); // CLASE PERMANENTE
-          }, 1000); // Muestra el mensaje por 1 segundo
+            element.classList.add("link-permanently-sent");
+
+            // Guardar en localStorage
+            if (!sentNumbers.includes(number)) {
+              sentNumbers.push(number);
+              localStorage.setItem("sentNumbers", JSON.stringify(sentNumbers));
+            }
+          }, 1000);
         } else {
-          // Feedback para el botón de copiar
           element.textContent = "¡Copiado!";
           element.classList.add("sent-feedback");
           setTimeout(() => {
@@ -643,13 +630,12 @@
         }
       }
 
-      // Función para limpiar, formatear y generar el enlace de WhatsApp
+      // Formatear número y generar enlace
       function formatNumberAndGetLink(number) {
         const cleanNumber = number.replace(/\D/g, "");
         let whatsAppNumber = cleanNumber;
         let displayPrefix = "";
 
-        // Lógica de prefijos para visualización
         if (whatsAppNumber.startsWith("1")) {
           displayPrefix = "+1 ";
         } else if (whatsAppNumber.startsWith("57")) {
@@ -674,7 +660,7 @@
         return { formattedNumber, whatsAppLink };
       }
 
-      // Función para generar la lista en el HTML
+      // Generar lista
       function generateList() {
         const listElement = document.getElementById("phoneList");
         const uniqueNumbers = [...new Set(numbersData)];
@@ -685,19 +671,20 @@
 
           const listItem = document.createElement("li");
 
-          // Enlace de WhatsApp
           const link = document.createElement("a");
           link.href = whatsAppLink;
           link.target = "_blank";
           link.className = "phone-link";
           link.textContent = formattedNumber;
 
-          // EVENTO ADICIONADO: Maneja el feedback y el color permanente
-          link.onclick = () => {
-            giveSentFeedback(link);
-          };
+          // Si ya está en localStorage, marcarlo como enviado
+          if (sentNumbers.includes(number)) {
+            link.classList.add("link-permanently-sent");
+          }
 
-          // Botón para copiar el enlace
+          link.onclick = () => {
+            giveSentFeedback(link, number);
+          };
           const copyButton = document.createElement("button");
           copyButton.className = "copy-btn";
           copyButton.textContent = "Copiar Enlace";
@@ -706,14 +693,11 @@
             navigator.clipboard
               .writeText(whatsAppLink)
               .then(() => {
-                giveSentFeedback(copyButton);
+                giveSentFeedback(copyButton, number);
               })
               .catch((err) => {
                 console.error("Error al copiar:", err);
-                alert(
-                  "Error al copiar el enlace. Inténtalo manualmente: " +
-                    whatsAppLink
-                );
+                alert("Error al copiar el enlace: " + whatsAppLink);
               });
           };
 
@@ -723,7 +707,6 @@
         });
       }
 
-      // Ejecutar la función para generar la lista al cargar la página
       document.addEventListener("DOMContentLoaded", generateList);
     </script>
   </body>
